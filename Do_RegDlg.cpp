@@ -1,5 +1,5 @@
 // Do_RegDlg.cpp : implementation file
-//
+// wwwwwwwwwwwwwwwwwwwwwwww
 
 #include "stdafx.h"
 #include "Do_Reg.h"
