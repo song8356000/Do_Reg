@@ -44,8 +44,13 @@ protected:
 	afx_msg void OnEnumKey();
 	afx_msg void OnCreateKey();
 	afx_msg void OnDeleteKey();
+	afx_msg void onRecover();
+	afx_msg void backup();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	
+	afx_msg void OnBnClickedRecover();
 };
 
 //{{AFX_INSERT_LOCATION}}

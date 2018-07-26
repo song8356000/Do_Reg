@@ -41,6 +41,8 @@ BEGIN_MESSAGE_MAP(CDo_RegDlg, CDialog)
 	ON_BN_CLICKED(IDC_CreateKey, OnCreateKey)
 	ON_BN_CLICKED(IDC_DeleteKey, OnDeleteKey)
 	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_BUTTON1, &CDo_RegDlg::backup)
+	ON_BN_CLICKED(IDC_Recover, &CDo_RegDlg::onRecover)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -147,7 +149,7 @@ void CDo_RegDlg::OnCreateValue()
 void CDo_RegDlg::OnDeleteValue() 
 {
    HKEY key;
-   long re=RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\11111",
+   long re=RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE",
 	   0,KEY_ALL_ACCESS,&key);
    if(re!=ERROR_SUCCESS){
 	   ::MessageBox(0,"打开键失败","提示错误",MB_OK);
@@ -227,3 +229,73 @@ void CDo_RegDlg::OnDeleteKey()
 	::RegDeleteKey(key,"11111");	
     ::RegCloseKey(key); 
 }
+
+
+void CDo_RegDlg::backup()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	char strKey[] = "SOFTWARE\\11111";   //这样写，备份的是11111项所包含的一些子项及值 测试时记住自己建立一个子项作为测试项，不然注册表会被搞乱
+	LPTSTR szSaveFileName;
+	HKEY key;
+	// 申请备份权限
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+		return;
+	LookupPrivilegeValue(NULL, SE_BACKUP_NAME, &tkp.Privileges[0].Luid);//申请SE_BACKUP_NAME权限 也就是备份注册表权限
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+	//开始备份工作
+	szSaveFileName = LPTSTR("H:\\KeyData");        //注意文件不可存在否则无法成功，备份文件无需指定文件类型
+	RegOpenKeyEx(HKEY_LOCAL_MACHINE, (LPCTSTR)strKey, 0, KEY_ALL_ACCESS, &key);
+	RegSaveKey(key, szSaveFileName, NULL);
+	RegCloseKey(key);
+
+}
+
+
+void CDo_RegDlg::onRecover()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int valueone;
+	int valuetwo;
+	char strKey[] = "SOFTWARE\\11111";      //这样写，恢复的是11111项所包含的一些子项及值
+	LPTSTR szSaveFileName;
+	HKEY key;
+	// 申请恢复权限
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+		return;
+	LookupPrivilegeValue(NULL, SE_RESTORE_NAME, &tkp.Privileges[0].Luid);//申请SE_RESTORE_NAME权限 也就是恢复注册表权限权限
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+	//开始恢复工作
+	szSaveFileName = LPTSTR("H:\\KeyData");   
+	valuetwo=RegOpenKeyEx(HKEY_LOCAL_MACHINE, (LPCTSTR)strKey, 0, KEY_ALL_ACCESS, &key);
+	if (valuetwo== ERROR_SUCCESS)
+	{
+		MessageBox("成功");
+	}
+	else 
+	{
+		char two[10];
+		sprintf(two, "%d", valuetwo);
+		MessageBox(two);
+	}
+	valueone=RegRestoreKey(key, szSaveFileName,REG_FORCE_RESTORE);//REG_FORCE_RESTORE 要指定这个属性（常规恢复，就是永久恢复）  REG_WHOLE_HIVE_VOLATILE这个属性恢复时测试无效
+	if (valueone== ERROR_SUCCESS)
+	{
+		MessageBox("恢复成功");
+	}
+	else
+	{
+		char one[10];
+		sprintf(one, "%d", valueone);
+		MessageBox(one);
+	}
+	RegCloseKey(key);
+}
+   

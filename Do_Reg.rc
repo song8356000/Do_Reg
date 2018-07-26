@@ -81,9 +81,11 @@ BEGIN
     PUSHBUTTON      "枚  举  值",IDC_EnumValue,7,7,55,17
     PUSHBUTTON      "建  立  值",IDC_CreateValue,7,36,55,17
     PUSHBUTTON      "删  除  值",IDC_DeleteValue,7,69,55,17
-    PUSHBUTTON      "枚  举  键",IDC_EnumKey,141,7,55,17
-    PUSHBUTTON      "建  立  键",IDC_CreateKey,141,36,55,17
-    PUSHBUTTON      "删  除  键",IDC_DeleteKey,141,69,55,17
+    PUSHBUTTON      "枚  举  键",IDC_EnumKey,72,7,55,17
+    PUSHBUTTON      "建  立  键",IDC_CreateKey,72,36,55,17
+    PUSHBUTTON      "删  除  键",IDC_DeleteKey,71,70,55,17
+    PUSHBUTTON      "备份注册表",IDC_BUTTON1,146,7,50,14
+    PUSHBUTTON      "恢复注册表",IDC_Recover,146,37,50,14
 END
 
 
